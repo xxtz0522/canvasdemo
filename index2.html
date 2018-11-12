@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="board">
+        <canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+            您的浏览器不支持 HTML5 canvas 标签。
+        </canvas>
+    </div>
+    <div>
+        <button id="clear" onclick="clearcanvas()">清除</button>
+        <button id="nomal" onclick="normaldraw()">画线</button>
+        <button id="line" onclick="drawline()">直线</button>
+        <button id="rect" onclick="drawrect()">矩形</button>
+        <button id="circle" onclick="drawcircle()">圆形</button>
+        <!-- <button id="pic" onclick="showpic()">添加图片</button> -->
+    </div>
+
+<script>
+    //笔刷设置
+    var brush = {
+        color: "#888",
+        size: 1,
+    };
+
+    var canvas;//创建画布
+    var context;//获取上下文
+    
+    window.onload=function(){
+            //创建画布
+            canvas=document.getElementById("myCanvas");
+            context = canvas.getContext("2d");
+            
+        }
+
+    //不同绘画类型
+    //随便画
+    function setNormal(canvas) {
+        // var context = canvas.getContext("2d");
+        context.lineCap = "round";//lineCap 属性设置或返回线条末端线帽的样式。
+        canvas.onmousedown = function (e) {
+            context.lineWidth = brush.size;
+            context.strokeStyle = brush.color;
+            context.beginPath();
+            //console.log(brush.color);
+            context.moveTo(e.offsetX, e.offsetY);
+            e.target.onmousemove = function (e2) {
+                //console.log("move");
+                context.lineTo(e2.offsetX, e2.offsetY);
+                context.stroke();//stroke()方法会实际地绘制出通过 moveTo() 和 lineTo() 方法定义的路径。
+                context.moveTo(e2.offsetX, e2.offsetY);
+            }
+            //console.log("down");
+        }
+        canvas.onmouseup = function (e) {
+            e.target.onmousemove = null;
+        }
+    }
+
+    //画直线
+    function setLine(canvas) {
+        // context.fillStyle = "rgba(0,0,0,0.01)"
+        // context.fillRect(0,0,canvas.width,canvas.height)
+        context.lineCap = "round";
+        canvas.onmousedown = function (e) {
+            //为了画多条直线，每次创建新image
+            var tempimg = new Image();
+            tempimg.src = canvas.toDataURL();
+
+            var oldx = e.offsetX;
+            var oldy = e.offsetY;
+            context.lineCap = "round";
+            context.lineWidth = brush.size;
+            canvas.onmousemove = function (e2) {
+                context.clearRect(0, 0, canvas.width, canvas.height);//鼠标按住拖动的时候要清除当前画布内容，否则持续画直线
+                // context.drawImage(canvasBackground, 0, 0, canvas.width, canvas.height);
+                context.drawImage(tempimg, 0, 0);//若无此句会清除之前的直线重新画线
+                
+                context.beginPath();
+                context.moveTo(oldx, oldy);
+                context.lineTo(e2.offsetX, e2.offsetY);
+                context.stroke();
+            }
+
+        }
+        canvas.onmouseup = function (e2) {
+            canvas.onmousemove = null;
+        }
+    }
+    
+    //画矩形
+    function setRect(canvas) {
+        var context = canvas.getContext("2d");
+        context.lineCap = "round";
+        canvas.onmousedown = function (e) {
+            var tempimg = new Image();
+            tempimg.src = canvas.toDataURL();
+            var oldx = e.offsetX;
+            var oldy = e.offsetY;
+            context.lineCap = "round";
+            context.lineWidth = brush.size;
+            canvas.onmousemove = function (e2) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(tempimg, 0, 0);
+                context.beginPath();
+
+                //空心矩形
+                context.strokeRect(oldx, oldy, e2.offsetX - oldx, e2.offsetY - oldy);
+                context.stroke();
+                //实心矩形
+                // context.fillRect(oldx, oldy, e2.offsetX - oldx, e2.offsetY - oldy);
+            }
+        }
+        canvas.onmouseup = function () {
+            canvas.onmousemove = null;
+        }
+    }
+    //画圆形
+    function setCircle(canvas) {
+        var context = canvas.getContext("2d");
+        context.lineCap = "round";
+        canvas.onmousedown = function (e) {
+            var tempimg = new Image();
+            tempimg.src = canvas.toDataURL();
+            var oldx = e.offsetX;
+            var oldy = e.offsetY;
+            context.lineCap = "round";
+            context.lineWidth = brush.size;
+            canvas.onmousemove = function (e2) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                var midx = (e2.offsetX + oldx) / 2;
+                var midy = (e2.offsetY + oldy) / 2;
+                context.drawImage(tempimg, 0, 0);
+                context.beginPath();
+                var r = (e2.offsetX - oldx) * (e2.offsetX - oldx) + (e2.offsetY - oldy) * (e2.offsetY - oldy);
+                r = Math.sqrt(r) / 2;
+                context.arc(midx, midy, r, 0, 2 * Math.PI, false);
+                context.closePath();
+                //实心圆
+                //  context.fill();
+                //空心圆
+                context.stroke();
+            }
+        }
+        canvas.onmouseup = function () {
+            canvas.onmousemove = null;
+        }
+    }
+
+    //按钮
+    function clearcanvas(){//清除画布
+        context.clearRect(0,0,500,500);
+        }
+    
+    function normaldraw(){//随便画
+        setNormal(canvas);
+    }
+
+    function drawline(){//画直线
+        setLine(canvas);
+    }
+
+    function drawrect(){//画矩形
+        setRect(canvas);
+    }
+    function drawcircle(){//画圆形
+        setCircle(canvas);
+    }
+    // function showpic(){//展示图片
+    //     var canvasBackground = new Image();
+    //     canvasBackground.src="img.jpg";
+    //     context.drawImage(canvasBackground,0,0,canvas.width, canvas.height);
+
+    // }
+</script>
+</body>
+</html>

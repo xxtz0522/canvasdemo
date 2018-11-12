@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="board">
+        <canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+            您的浏览器不支持 HTML5 canvas 标签。
+        </canvas>
+    </div>
+    <div>
+        <button id="clear" onclick="clearcanvas()">清除</button>
+    </div>
+    
+
+<script>
+    var canvas;//创建画布
+    var context;//获取上下文
+
+    var brush = {
+        color: "#888",
+        size: 1,
+    };
+    var isMouseDown=false;//记录鼠标是否按下
+    var X,Y,X1,Y1;//画图时鼠标坐标
+    var flag=0;
+
+    window.onload=function(){
+            //创建画布
+            var canvas=document.getElementById("myCanvas");
+            //获取上下文
+            var context=canvas.getContext("2d");
+            canvas=document.getElementById("board");
+            canvas.onmousedown=mouseDownAction;
+            canvas.onmousemove=mouseMoveAction;
+            document.onmouseup=mouseUpAction;
+        }
+    
+    /**
+         *鼠标按下
+         */
+         function mouseDownAction(e){
+            isMouseDown=true;
+            //记录下鼠标点击的时候的位置
+            X= e.offsetX;
+            Y= e.offsetY;
+        }
+        /**
+         *鼠标移动
+         */
+        function mouseMoveAction(e){
+            if(isMouseDown){
+                X1= e.offsetX;
+                Y1= e.offsetY;
+                drowline(X,Y,X1,Y1);
+                flag++;
+            }
+        }
+        /**
+         *鼠标弹起来
+         */
+        function mouseUpAction(e){
+            isMouseDown=false;
+            flag=0;
+        }
+    
+        function drowline(num1,num2,num3,num4){
+            //开启新的路径
+            if(flag)
+                context.beginPath();
+            //移动画笔的初始位置
+            context.moveTo(num1,num2);
+            context.lineWidth=brush.size;
+            context.strokeStyle=brush.color;
+            //移动画笔的结束位置
+            context.lineTo(num3,num4);
+            //开始绘制
+            context.stroke();
+
+            if(flag!=0){
+                X=X1;
+                Y=Y1;
+            }
+        }
+
+        function clearcanvas(){//清除画布
+            context.clearRect(0,0,500,500);
+        }
+
+
+</script>
+</body>
+</html>
